@@ -68,9 +68,9 @@
  
 }
 
-.react-autosuggest__suggestion:hover {
+/*.react-autosuggest__suggestion:hover {
   background-color: #faf6d2 !important;
-}
+}*/
 
 
 /* autosuggest.css */
@@ -136,7 +136,7 @@
 }
 
 .react-autosuggest__suggestion--highlighted {
-  background-color: #ddd;
+  background-color: #faf6d2;
 }
 
 .react-autosuggest__section-container {
