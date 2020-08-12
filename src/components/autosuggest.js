@@ -1,7 +1,6 @@
 
 import React, { Fragment } from 'react';
 import Autosuggest from 'react-autosuggest';
-import IsolatedScroll from 'react-isolated-scroll';
 import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 import './autosuggest.css'; 
@@ -9,6 +8,7 @@ import Search from "./images/search.png";
 import Clear from "./images/clear.png";
 import { people } from "./db/data";
 import { getUsers, debouncedSearchAPI,throttledSearchAPI } from "./apis/user";
+import { sum } from 'lodash';
 
 class FocusAutoSuggest extends React.Component {
     constructor() {
@@ -34,14 +34,13 @@ class FocusAutoSuggest extends React.Component {
         if (escapedValue === '') {
           return [];
         }
-        let response = await throttledSearchAPI()
-                            .then(data => data.json())
+        let response = await debouncedSearchAPI()
+                            .then(response => {
+                                return response.data;
+                            })
                             .catch((error) => {
                                 console.error('Error:', error);
-                            });
-
-                            
-                            
+                            })                 
         response = (response) ? response: people;
         let suggestionFilter = await response.filter(obj => Object.values(obj).some(val => (String(val).toLowerCase()).includes(escapedValue)))
        
@@ -73,7 +72,7 @@ class FocusAutoSuggest extends React.Component {
     }
     
     return (
-            <div  className= {`suggestion-content-parent ${suggestion.uniqueId}`}>
+            <div onMouseMove={ this.mouseMoveHandleEvent }  className= {`suggestion-content-parent ${suggestion.uniqueId}`}>
                 <div><b>{idText}</b></div>
                 <div><i>{nameText}</i></div>
                 <div><i>{itemText}</i></div>
@@ -158,24 +157,31 @@ class FocusAutoSuggest extends React.Component {
     onSuggestionHighlighted = ({ suggestion }) =>{
         if(suggestion){
             let elmnt = window.document.getElementsByClassName(String(suggestion.uniqueId));
-            elmnt[0].scrollIntoView();
+            if(elmnt[0]){
+                elmnt[0].scrollIntoView();
+            }
         }
     };
+    mouseMoveHandleEvent = (event) => {
+        this.setState({
+            currentAction: 'nonType'
+        });
+    }
     render() {
         const { value, suggestions } = this.state;
         const inputProps = {
             placeholder: 'Search users by ID, address and name',
             value,
-            onChange: this.onChange,
-            onkeydown: this.onChange
+            onChange: this.onChange
         };
         return (
             <Fragment>
+                <div onMouseMove={ this.mouseMoveHandleEvent }>
                 <div className = {"searchLogoContainer"}>
                     <img  alt="Search" className = {"searchLogo"}src={Search}></img>
                 </div>
                 <Autosuggest
-                    
+                     
                     className = {"searchInputBox"} 
                     suggestions={suggestions}
                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
@@ -187,6 +193,7 @@ class FocusAutoSuggest extends React.Component {
                 />
                 <div className = {"clearLogoContainer"}>
                     <img  alt="Clear" onClick ={this.onClear} className = {"clearLogo"}src={Clear}></img>
+                </div>
                 </div>
             </Fragment>
         );

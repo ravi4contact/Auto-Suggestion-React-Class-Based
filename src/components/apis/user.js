@@ -10,7 +10,7 @@ export const debouncedSearchAPI = debounce(async () => {
 
 export const throttledSearchAPI = throttle(async () => {
 	return await axios.get(`${GET_USERS}`)
-}, 1000, { leading: true });
+}, 800, { leading: true });
 
 
 
@@ -33,8 +33,6 @@ export const getUsers = async () => {
 	  }
 	}
   }
-
-
 
 
   export const debouncedSearchAPI  = (func, interval)  => {
